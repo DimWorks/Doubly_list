@@ -2,43 +2,87 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+node* HEAD = NULL;
+node* TAIL = NULL;
 
 //-------------------- CHECK FUNCTION --------------------
-int is_empty(node* list_copy) {
-    return list_copy == NULL;    //функция возвращает 1 - если список пуск, 0 - иначе
+int is_empty(node* list_copy) 
+{
+    return list_copy == NULL;
 }
 
+//-------------------- NUMBER OF NODES --------------------
+
 int count(node* list_copy) {
-    int x = 0;
-    for (; list_copy != NULL; list_copy = list_copy->next)  //обход всего списока
-        x++;    //инкремент счётчика подсчёта элементов
-    return x; //функция возвращает число - количество элементов в списке
+    int i = 0;
+    for (; list_copy != NULL; list_copy = list_copy->next)
+    {
+        i++;
+    }
+    return i;
 }
 
 //-------------------- PUSH FUNCTION --------------------
-void push_to_head(node** list, int data) {
-    node* tmp = (node*)malloc(sizeof(node));    //выделение памяти под новый элемент списка
-    tmp->data = data;   //запись данных в элемент
-    tmp->next = *list;  //запись указателя на следующий элемент
-    *list = tmp;    //сохранение адреса head-элемента списка
+
+void push_to_head(node** list, void* data) 
+{
+    node* tmp = (node*)malloc(sizeof(node));
+    tmp->data = data;
+    tmp->next = *list;
+    tmp->previous = NULL;
+    if (*list != NULL)
+    {
+        tmp->next->previous = tmp;
+    }
+    else
+    {
+        TAIL = tmp;
+    }
+    *list = tmp;    
+    HEAD = tmp;
+
 }
 
-void push_array_to_head(node** list, int array[], int y) {
+void push_array_to_head(node** list, int array[], int y) 
+{
     for (int i = 0; i < y; i++)
+    {
         push_to_head(list, array[i]);   //вызов функции добавления элемента в список с головы
+    }        
 }
 
-void push_to_tail(node* list_copy, int data) {
+void push_to_tail(node* list_copy, int data) 
+{
     node* tmp = (node*)malloc(sizeof(node));    //выделение памяти под новый элемент списка
     tmp->data = data;   //запись данных в элемент
     tmp->next = NULL;   //запись указателя на NULL
-    while ((list_copy->next) != NULL) list_copy = list_copy->next; //переход к последнему элементу
-    list_copy->next = tmp;   //запись адреса последнего элемента в указатель предпоследнего элемента
+
+    if (TAIL == NULL)
+    {
+        TAIL = tmp;
+    }
+    else
+    {
+        tmp->previous = TAIL;
+        tmp->previous->next = tmp;
+        TAIL = tmp;
+    }
+    //while ((list_copy->next) != NULL) list_copy = list_copy->next; //переход к последнему элементу
+    //list_copy->next = tmp;   //запись адреса последнего элемента в указатель предпоследнего элемента
 }
 
-void push_to_position(node** list, int position, int data) {
-    if (position < 1 || position > count(*list) + 1) { printf("Impossible position for the element\n"); return; }   //проверка корректности позиции элемента
-    if (position == 1) { push_to_head(list, data); return; }    //частный случай, вызов функции push_from_head, если передана позиция первого элемента
+void push_to_position(node** list, int position, int data) 
+{
+    if (position < 1 || position > count(*list) + 1) 
+    { 
+        printf("Impossible position for the element\n"); 
+        return; 
+    }   //проверка корректности позиции элемента
+    if (position == 1) 
+    { 
+        push_to_head(list, data); 
+        return; 
+    }    //частный случай, вызов функции push_from_head, если передана позиция первого элемента
     if (position == count(*list) + 1) { push_to_tail(*list, data); return; }    //частный случай, вызов функции push_from_tail, если передана позиция последнего элемента
     node* tmp = (node*)malloc(sizeof(node));    //выделение памяти под новый элемент списка
     node* list_copy = *list;    //создание вспомогательной переменной для предотвращения потери head-элемента
@@ -59,7 +103,13 @@ int pop_from_head(node** list) {
 }
 
 int pop_from_tail(node* list_copy) {
-    if (list_copy == NULL) { printf("Element to remove doesn't exist. List is empty.\n"); return NULL; } //проверка списка на наличие элементов
+    if (list_copy == NULL) 
+    { 
+        printf("Element to remove doesn't exist. List is empty.\n");
+        return NULL; 
+    } //проверка списка на наличие элементов
+      
+
     node* tmp = list_copy;   //создание вспомогательной переменной
     while (list_copy->next != NULL) {
         tmp = list_copy; //сохрание адреса текущего элемента перед переходом к следующему
@@ -122,23 +172,39 @@ void print_from_head(node* list_copy) {
     printf("\n");
 }
 
-void real_print_from_tail(node* list_copy) {
-    if (list_copy != NULL) { //условие достижения последнего элемента списка
-        real_print_from_tail(list_copy->next); //рукрсивный вызов функции
-        printf("%d ", list_copy->data);  //вывод данных элемента
+void real_print_from_tail(node* list_copy) 
+{
+    list_copy = TAIL;
+    while (list_copy != NULL)
+    {
+        printf("%d ", list_copy->data);
+        list_copy = list_copy->previous;
     }
 }
 
 void print_from_tail(node* list_copy) {
-    if (list_copy == NULL) { printf("List is empty.\n"); return; } //проверка списка на наличие элементов
+    if (list_copy == NULL) 
+    { 
+        printf("List is empty.\n"); 
+        return; 
+    } //проверка списка на наличие элементов
+
     printf("Print from TAIL: ");
     real_print_from_tail(list_copy); //вывзов рукурсивной функции вывода элементов на экран
     printf("\n");
 }
 
 void print_element(node* list_copy, int position) {
-    if (list_copy == NULL) { printf("List is empty.\n"); return; } //проверка списка на наличие элементов
-    if (position < 1 || position > count(list_copy)) { printf("Impossible position for the element.\n"); return; } //проверка корректности позиции элемента
+    if (list_copy == NULL) 
+    { 
+        printf("List is empty.\n");
+        return; 
+    } //проверка списка на наличие элементов
+    if (position < 1 || position > count(list_copy)) 
+    { 
+        printf("Impossible position for the element.\n");
+        return; 
+    } //проверка корректности позиции элемента
     for (int i = 1; i < position; i++, list_copy = (list_copy)->next); //переход к запрашиваемому элементу
     printf("Print %d element: %d", position, list_copy->data); //вывод данных элемента
     printf("\n");

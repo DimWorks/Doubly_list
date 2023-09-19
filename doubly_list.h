@@ -2,15 +2,15 @@
 
 typedef struct node
 {
-	int data;
+	void* data;
+	struct node* previous;
 	struct node* next;
 } node;
-
 
 int is_empty(node*);    //прототип функции проверки на наличие элементов в списке
 int count(node*);   //прототип функции возвращающей количество элементов в списке
 
-void push_to_head(node**, int); //прототип функции добавления элемента в список с головы
+void push_to_head(node**, void*); //прототип функции добавления элемента в список с головы
 void push_array_to_head(node**, int[], int);    //прототип функции добавления элементов из массива в список с головы
 void push_to_tail(node*, int); //прототип функции добавления элемента в список с хвоста
 void push_to_position(node**, int, int);    //прототип функции добавления элемента в список с указанием позиции
