@@ -83,7 +83,11 @@ void push_to_position(node** list, int position, int data)
         push_to_head(list, data); 
         return; 
     }    //частный случай, вызов функции push_from_head, если передана позиция первого элемента
-    if (position == count(*list) + 1) { push_to_tail(*list, data); return; }    //частный случай, вызов функции push_from_tail, если передана позиция последнего элемента
+    if (position == count(*list) + 1) 
+    { 
+        push_to_tail(*list, data); 
+        return; 
+    }    //частный случай, вызов функции push_from_tail, если передана позиция последнего элемента
     node* tmp = (node*)malloc(sizeof(node));    //выделение памяти под новый элемент списка
     node* list_copy = *list;    //создание вспомогательной переменной для предотвращения потери head-элемента
     tmp->data = data;   //запись данных в элемент
@@ -93,10 +97,12 @@ void push_to_position(node** list, int position, int data)
 }
 
 //-------------------- POP FUNCTION --------------------
-int pop_from_head(node** list) {
+int pop_from_head(node** list) 
+{
     if (*list == NULL) { printf("Element to remove doesn't exist. List is empty.\n"); return NULL; } //проверка списка на наличие элементов
     node* tmp = *list;  //создание вспомогательной переменной
     int res = tmp->data;    //сохраниение данных удаляемого элемента
+    HEAD = tmp->next;
     *list = tmp->next;  //второй элемент становится head-элементом списка
     free(tmp);  //освобождение памяти
     return res; //функция возвращает данные удаляемого элемента
@@ -108,16 +114,13 @@ int pop_from_tail(node* list_copy) {
         printf("Element to remove doesn't exist. List is empty.\n");
         return NULL; 
     } //проверка списка на наличие элементов
-      
 
-    node* tmp = list_copy;   //создание вспомогательной переменной
-    while (list_copy->next != NULL) {
-        tmp = list_copy; //сохрание адреса текущего элемента перед переходом к следующему
-        list_copy = list_copy->next; //переход к следующему элементу
-    }
-    int res = list_copy->data;    //сохраниение данных удаляемого элемента
-    tmp->next = NULL;  //предпоследний элемент становится tail-элементом списка
-    free(list_copy);  //освобождение памяти
+    node* tmp = TAIL;   //создание вспомогательной переменной
+    int res = tmp->data;
+    tmp->previous = tmp->previous->next = NULL;
+    TAIL = tmp->previous;
+
+    free(tmp);  //освобождение памяти
     return res; //функция возвращает данные удаляемого элемента
 }
 
@@ -145,8 +148,13 @@ int edit_from_head(node* list_copy, int data) {
 }
 
 int edit_from_tail(node* list_copy, int data) {
-    if (list_copy == NULL) { printf("Element to edit doesn't exist. List is empty.\n"); return NULL; }  //проверка списка на наличие элементов
-    while (list_copy->next != NULL) list_copy = list_copy->next;    //переход к последнему элементу списка
+    if (list_copy == NULL) 
+    { 
+        printf("Element to edit doesn't exist. List is empty.\n"); 
+        return NULL; 
+    }  //проверка списка на наличие элементов
+    //while (list_copy->next != NULL) list_copy = list_copy->next;    //переход к последнему элементу списка
+    list_copy = TAIL;
     int res = list_copy->data;  //сохраниение данных редактируемого элемента
     list_copy->data = data; //замена данных редактируемого элемента
     return res;
@@ -172,16 +180,6 @@ void print_from_head(node* list_copy) {
     printf("\n");
 }
 
-void real_print_from_tail(node* list_copy) 
-{
-    list_copy = TAIL;
-    while (list_copy != NULL)
-    {
-        printf("%d ", list_copy->data);
-        list_copy = list_copy->previous;
-    }
-}
-
 void print_from_tail(node* list_copy) {
     if (list_copy == NULL) 
     { 
@@ -190,7 +188,12 @@ void print_from_tail(node* list_copy) {
     } //проверка списка на наличие элементов
 
     printf("Print from TAIL: ");
-    real_print_from_tail(list_copy); //вывзов рукурсивной функции вывода элементов на экран
+    list_copy = TAIL;
+    while (list_copy != NULL)
+    {
+        printf("%d ", list_copy->data);
+        list_copy = list_copy->previous;
+    }
     printf("\n");
 }
 
